@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <data name="Review_Creation_Success" xml:space="preserve">
+    <value>Review created successfully.</value>
+  </data>
+  <data name="Review_Creation_Failed" xml:space="preserve">
+    <value>Failed to create the review. Please check the data.</value>
+  </data>
+  <data name="Reviews_Fetched" xml:space="preserve">
+    <value>Reviews retrieved successfully.</value>
+  </data>
+</root>

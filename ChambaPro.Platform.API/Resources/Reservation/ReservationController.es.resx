@@ -1,0 +1,33 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+	<data name="InvalidReservationId" xml:space="preserve">
+    <value>ID de reserva inválido</value>
+  </data>
+	<data name="ReservationNotFound" xml:space="preserve">
+    <value>No se encontró la reserva</value>
+  </data>
+	<data name="ReservationCreated" xml:space="preserve">
+    <value>La reserva fue creada</value>
+  </data>
+	<data name="ReservationUpdated" xml:space="preserve">
+    <value>La reserva fue actualizada</value>
+  </data>
+	<data name="ReservationCancelled" xml:space="preserve">
+    <value>La reserva fue cancelada</value>
+  </data>
+	<data name="ReservationDeleted" xml:space="preserve">
+    <value>La reserva fue eliminada</value>
+  </data>
+	<data name="InvalidData" xml:space="preserve">
+    <value>Datos inválidos</value>
+  </data>
+	<data name="ReservationsFound" xml:space="preserve">
+    <value>Se encontraron las reservas</value>
+  </data>
+	<data name="OperationFailed" xml:space="preserve">
+    <value>La operación falló, por favor intenta nuevamente.</value>
+  </data>
+	<data name="ReservationCreationFailed" xml:space="preserve">
+    <value>Error al crear la reserva.</value>
+  </data>
+</root>

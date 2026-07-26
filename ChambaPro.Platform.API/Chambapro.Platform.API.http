@@ -1,0 +1,6 @@
+@ChambaPro.Platform.API_HostAddress = http://localhost:3306
+
+GET {{ChambaPro.Platform.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

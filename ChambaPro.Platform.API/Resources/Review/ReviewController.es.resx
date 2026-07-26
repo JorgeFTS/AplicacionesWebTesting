@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <data name="Review_Creation_Success" xml:space="preserve">
+    <value>Reseña creada exitosamente.</value>
+  </data>
+  <data name="Review_Creation_Failed" xml:space="preserve">
+    <value>No se pudo procesar la reseña, verifique los datos.</value>
+  </data>
+  <data name="Reviews_Fetched" xml:space="preserve">
+    <value>Reseñas obtenidas exitosamente.</value>
+  </data>
+</root>
