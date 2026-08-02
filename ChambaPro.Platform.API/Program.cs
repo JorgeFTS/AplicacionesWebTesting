@@ -40,7 +40,7 @@ builder.Services.AddControllers(options => options.Conventions.Add(new KebabCase
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
-var corsOrigin = Environment.GetEnvironmentVariable("CORS_ORIGIN") ?? "http://localhost:5173";
+var corsOrigin = Environment.GetEnvironmentVariable("CORS_ORIGIN") ?? "http://localhost:4173";
 
 builder.Services.AddCors(options =>
 {
