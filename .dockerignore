@@ -22,3 +22,7 @@
 **/values.dev.yaml
 LICENSE
 README.md
+# Config local con secretos: nunca debe entrar a la imagen
+**/appsettings.Development.json
+**/appsettings.Development.example.json
+**/*.user
