@@ -1,6 +1,6 @@
 # ChambaPro — Backend (Platform API)
 
-[![Backend CI](https://github.com/JorgeFTS/AplicacionesWebTesting/actions/workflows/ci.yml/badge.svg)](https://github.com/JorgeFTS/AplicacionesWebTesting/actions/workflows/ci.yml)
+[![Backend CI](https://github.com/JorgeFTS/backend-chambapro/actions/workflows/ci.yml/badge.svg)](https://github.com/JorgeFTS/backend-chambapro/actions/workflows/ci.yml)
 
 API REST de **ChambaPro**, una plataforma que conecta clientes con técnicos: búsqueda, contratación, agenda de reservas y reseñas.
 
