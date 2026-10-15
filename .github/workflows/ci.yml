@@ -1,0 +1,152 @@
+name: Backend CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# Permisos mínimos por defecto: solo lectura del repo
+permissions:
+  contents: read
+
+# Si haces un push nuevo mientras corre uno viejo en la misma rama, cancela el viejo
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # 1) Compila y corre los tests unitarios, con cobertura
+  test:
+    name: Build y tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Restore
+        run: dotnet restore ChambaPro.Platform.API.Tests/ChambaPro.Platform.API.Tests.csproj
+
+      - name: Build
+        run: dotnet build ChambaPro.Platform.API.Tests/ChambaPro.Platform.API.Tests.csproj --no-restore -c Release
+
+      - name: Tests (con cobertura)
+        run: >
+          dotnet test ChambaPro.Platform.API.Tests/ChambaPro.Platform.API.Tests.csproj
+          --no-build -c Release
+          --collect:"XPlat Code Coverage"
+          --results-directory ./TestResults
+
+      - name: Resumen de cobertura
+        if: always()
+        continue-on-error: true
+        run: |  
+          dotnet tool install --global dotnet-reportgenerator-globaltool
+          export PATH="$PATH:$HOME/.dotnet/tools"
+          reportgenerator -reports:"TestResults/**/coverage.cobertura.xml" -targetdir:coverage -reporttypes:MarkdownSummaryGithub
+          cat coverage/SummaryGithub.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Guardar resultados de tests
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: test-results
+          path: TestResults
+          if-no-files-found: ignore
+
+  # 2) Prueba de humo: levanta MySQL + API con docker compose y pregunta a /health
+  smoke:
+    name: Prueba de humo (docker compose)
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Crear .env con valores temporales
+        run: |
+          {
+            echo "MYSQL_PASSWORD=$(openssl rand -hex 12)"
+            echo "MYSQL_ROOT_PASSWORD=$(openssl rand -hex 12)"
+            echo "TOKEN_SECRET=$(openssl rand -hex 32)"
+          } > .env
+
+      - name: Levantar el stack y esperar a que esté sano
+        run: docker compose up -d --build --wait --wait-timeout 240
+
+      - name: Probar /health
+        run: curl --fail --silent --show-error http://localhost:8080/health
+
+      - name: Logs si algo falló
+        if: failure()
+        run: docker compose logs --no-color
+
+      - name: Apagar el stack
+        if: always()
+        run: docker compose down -v
+
+  # 3) Construye la imagen, la escanea con Trivy y, solo en main, la publica en GHCR
+  docker:
+    name: Imagen Docker
+    runs-on: ubuntu-latest
+    needs: test
+    permissions:
+      contents: read
+      packages: write   # necesario para publicar en GitHub Container Registry
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: docker/setup-buildx-action@v4
+
+      - name: Metadatos de la imagen (nombre, tags, labels)
+        id: meta
+        uses: docker/metadata-action@v6
+        with:
+          images: ghcr.io/${{ github.repository }}
+          tags: |
+            type=sha,format=short
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Construir imagen (sin publicar todavía)
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: ChambaPro.Platform.API/Dockerfile
+          load: true
+          tags: chambapro-api:ci
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      # Escáner de vulnerabilidades. Por ahora solo informa (exit-code 0).
+      # Cuando la imagen esté limpia, cambia exit-code a '1' para que bloquee el pipeline.
+      # Acción de terceros: fijada por commit SHA (v0.36.0) y no por etiqueta.
+      - name: Escanear vulnerabilidades (Trivy)
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          image-ref: chambapro-api:ci
+          format: table
+          severity: CRITICAL,HIGH
+          ignore-unfixed: true
+          exit-code: '0'
+
+      - name: Login en GHCR
+        if: github.event_name == 'push'
+        uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # Reutiliza la caché del paso anterior, así que es casi instantáneo
+      - name: Publicar imagen en GHCR (solo en main)
+        if: github.event_name == 'push'
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: ChambaPro.Platform.API/Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha

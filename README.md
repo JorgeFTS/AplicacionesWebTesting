@@ -1,5 +1,7 @@
 # ChambaPro — Backend (Platform API)
 
+[![Backend CI](https://github.com/JorgeFTS/backend-chambapro/actions/workflows/ci.yml/badge.svg)](https://github.com/JorgeFTS/backend-chambapro/actions/workflows/ci.yml)
+
 API REST de **ChambaPro**, una plataforma que conecta clientes con técnicos: búsqueda, contratación, agenda de reservas y reseñas.
 
 > **Estado:** en desarrollo. Estoy agregando la capa DevOps/QA: Docker, CI/CD con GitHub Actions, más tests y despliegue en Azure con Terraform.
@@ -55,9 +57,9 @@ dotnet test
 ## Roadmap DevOps / QA
 
 - [x] Secretos fuera del repositorio
-- [ ] Endpoint `/health` (escrito, pendiente de compilar y probar)
-- [ ] Dockerfile multi-stage con usuario no-root (escrito, pendiente de probar)
-- [ ] `docker-compose` con MySQL + API (escrito, pendiente de probar)
+- [x] Endpoint `/health`
+- [x] Dockerfile multi-stage con usuario no-root
+- [x] `docker-compose` con MySQL + API
 - [ ] CI con GitHub Actions (build, tests, cobertura)
 - [ ] Publicar imagen en GitHub Container Registry
 - [ ] Más tests (IAM, Review, servicios de aplicación)
