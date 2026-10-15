@@ -1,3 +1,8 @@
 .idea/
 bin/
 obj/
+
+# Secretos y configuración local (nunca al repo)
+.env
+appsettings.Development.json
+**/*.user

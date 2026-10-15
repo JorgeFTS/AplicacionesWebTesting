@@ -166,7 +166,8 @@ using (var scope = app.Services.CreateScope())
     context.Database.EnsureCreated();
 }
 
-if (app.Environment.IsDevelopment())
+// Swagger en Development, o en cualquier ambiente si EnableSwagger=true (útil para demos con Docker)
+if (app.Environment.IsDevelopment() || builder.Configuration.GetValue<bool>("EnableSwagger"))
 {
     app.UseSwagger();
     app.UseSwaggerUI();
@@ -181,5 +182,11 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+
+// Health check: responde 200 si la API está arriba y llega a la base de datos, 503 si no.
+app.MapGet("/health", async (AppDbContext db) =>
+    await db.Database.CanConnectAsync()
+        ? Results.Ok(new { status = "ok" })
+        : Results.StatusCode(StatusCodes.Status503ServiceUnavailable));
 
 app.Run();
